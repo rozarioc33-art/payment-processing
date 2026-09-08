@@ -21,6 +21,7 @@ public class Payment {
     @Enumerated(EnumType.STRING)
     private PaymentStatus status;
 
+    @Column(unique = true, nullable = false)
     private String idempotencyKey;
 
     private LocalDateTime createdAt;
@@ -89,4 +90,16 @@ public class Payment {
     public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
     }
+
+    @PrePersist
+    protected  void onCreate() {
+        createdAt = LocalDateTime.now();
+        updatedAt = LocalDateTime.now();
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        updatedAt = LocalDateTime.now();
+    }
+
 }

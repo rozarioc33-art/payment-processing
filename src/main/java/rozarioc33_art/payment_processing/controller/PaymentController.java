@@ -1,7 +1,9 @@
 package rozarioc33_art.payment_processing.controller;
 
+import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RestController;
 import rozarioc33_art.payment_processing.dto.PaymentRequest;
 import rozarioc33_art.payment_processing.entity.Payment;
@@ -17,14 +19,9 @@ public class PaymentController {
     }
 
     @PostMapping("/api/payments")
-    public Payment createPayment(@RequestBody PaymentRequest request) {
+    public Payment createPayment(@Valid @RequestBody PaymentRequest request,
+                                 @RequestHeader("Idempotency-key") String idempotencyKey) {
 
-        Payment payment = new Payment();
-
-        payment.setOrderId(request.getOrderId());
-        payment.setAmount(request.getAmount());
-        payment.setCurrency(request.getCurrency());
-
-        return paymentService.createPayment(payment);
+        return paymentService.createPayment(request, idempotencyKey);
     }
 }
