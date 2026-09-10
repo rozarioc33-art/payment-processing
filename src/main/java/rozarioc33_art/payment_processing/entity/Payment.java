@@ -14,7 +14,10 @@ public class Payment {
     @UuidGenerator
     private UUID id;
 
-    private String orderId ;
+    @ManyToOne
+    @JoinColumn(name = "order_id", nullable = false)
+    private Order order;
+
     private BigDecimal amount;
     private String currency;
 
@@ -35,12 +38,12 @@ public class Payment {
         this.id = id;
     }
 
-    public String getOrderId() {
-        return orderId;
+    public Order getOrder() {
+        return order;
     }
 
-    public void setOrderId(String orderId) {
-        this.orderId = orderId;
+    public void setOrder(Order order) {
+        this.order = order;
     }
 
     public BigDecimal getAmount() {
