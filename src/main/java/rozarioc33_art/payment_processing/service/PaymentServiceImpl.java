@@ -5,7 +5,9 @@ import rozarioc33_art.payment_processing.dto.PaymentRequest;
 import rozarioc33_art.payment_processing.entity.Order;
 import rozarioc33_art.payment_processing.entity.Payment;
 import rozarioc33_art.payment_processing.entity.PaymentStatus;
-import rozarioc33_art.payment_processing.exception.IllegalPaymentStatusTransitionException;
+import rozarioc33_art.payment_processing.exception.InvalidOrderIdException;
+import rozarioc33_art.payment_processing.exception.InvalidPaymentStatusTransitionException;
+import rozarioc33_art.payment_processing.exception.OrderNotFoundException;
 import rozarioc33_art.payment_processing.repository.OrderRepository;
 import rozarioc33_art.payment_processing.repository.PaymentRepository;
 
@@ -32,9 +34,18 @@ public class PaymentServiceImpl implements PaymentService{
             return existingPayment.get();
         }
 
-        Order order = orderRepository.findById(
-                UUID.fromString(request.getOrderId())
-        ).orElseThrow();
+        UUID orderId;
+
+        try {
+            orderId = UUID.fromString(request.getOrderId());
+        } catch (IllegalArgumentException e) {
+            throw new InvalidOrderIdException("Invalid order ID");
+        }
+
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() ->
+                        new OrderNotFoundException("Order not found")
+                );
 
         Payment payment = new Payment();
 
@@ -53,7 +64,7 @@ public class PaymentServiceImpl implements PaymentService{
         Optional<Payment> existingPayment = paymentRepository.findById(paymentId);
 
         if (existingPayment.isEmpty()) {
-            throw new IllegalPaymentStatusTransitionException("Payment not found");
+            throw new InvalidPaymentStatusTransitionException("Payment not found");
         }
 
         Payment payment = existingPayment.get();
@@ -64,17 +75,17 @@ public class PaymentServiceImpl implements PaymentService{
             if (newStatus == PaymentStatus.PROCESSING) {
                 payment.setStatus(newStatus);
             } else {
-                throw  new IllegalPaymentStatusTransitionException("Invalid payment status transition");
+                throw  new InvalidPaymentStatusTransitionException("Invalid payment status transition");
             }
         } else if (currentStatus == PaymentStatus.PROCESSING) {
 
             if (newStatus == PaymentStatus.SUCCESS || newStatus == PaymentStatus.FAILED) {
                 payment.setStatus(newStatus);
             } else {
-                throw  new IllegalPaymentStatusTransitionException("Invalid payment status transition");
+                throw  new InvalidPaymentStatusTransitionException("Invalid payment status transition");
             }
         } else {
-            throw new IllegalPaymentStatusTransitionException("Invalid payment status transition");
+            throw new InvalidPaymentStatusTransitionException("Invalid payment status transition");
         }
 
         return paymentRepository.save(payment);

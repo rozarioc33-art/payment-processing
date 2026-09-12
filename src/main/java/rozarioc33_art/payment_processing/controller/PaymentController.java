@@ -5,7 +5,6 @@ import org.springframework.web.bind.annotation.*;
 import rozarioc33_art.payment_processing.dto.PaymentRequest;
 import rozarioc33_art.payment_processing.dto.PaymentStatusRequest;
 import rozarioc33_art.payment_processing.entity.Payment;
-import rozarioc33_art.payment_processing.entity.PaymentStatus;
 import rozarioc33_art.payment_processing.service.PaymentService;
 
 import java.util.UUID;
