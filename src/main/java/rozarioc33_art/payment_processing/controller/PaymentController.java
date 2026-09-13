@@ -37,4 +37,9 @@ public class PaymentController {
                 request.getStatus()
         );
     }
+
+    @GetMapping("/{paymentId}")
+    public Payment getPaymentById(@PathVariable UUID paymentId) {
+        return paymentService.getPaymentById(paymentId);
+    }
 }
