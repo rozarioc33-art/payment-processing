@@ -8,6 +8,7 @@ import rozarioc33_art.payment_processing.entity.PaymentStatus;
 import rozarioc33_art.payment_processing.exception.InvalidOrderIdException;
 import rozarioc33_art.payment_processing.exception.InvalidPaymentStatusTransitionException;
 import rozarioc33_art.payment_processing.exception.OrderNotFoundException;
+import rozarioc33_art.payment_processing.exception.PaymentNotFoundException;
 import rozarioc33_art.payment_processing.repository.OrderRepository;
 import rozarioc33_art.payment_processing.repository.PaymentRepository;
 
@@ -89,5 +90,14 @@ public class PaymentServiceImpl implements PaymentService{
         }
 
         return paymentRepository.save(payment);
+    }
+
+    @Override
+    public Payment getPaymentById(UUID paymentId) {
+
+        return paymentRepository.findById(paymentId)
+                .orElseThrow(() ->
+                        new PaymentNotFoundException("Payment not found")
+                );
     }
 }

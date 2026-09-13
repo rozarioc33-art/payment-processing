@@ -11,4 +11,6 @@ public interface PaymentService {
     Payment createPayment(PaymentRequest request, String idempotencyKey);
 
     Payment changePaymentStatus(UUID paymentId, PaymentStatus newStatus);
+
+    Payment getPaymentById(UUID paymentId);
 }
