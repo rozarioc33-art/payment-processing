@@ -45,7 +45,7 @@ public class PaymentServiceImpl implements PaymentService{
 
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() ->
-                        new OrderNotFoundException("Order not found")
+                        new OrderNotFoundException("No order exists with the supplied order ID")
                 );
 
         Payment payment = new Payment();
@@ -65,7 +65,7 @@ public class PaymentServiceImpl implements PaymentService{
         Optional<Payment> existingPayment = paymentRepository.findById(paymentId);
 
         if (existingPayment.isEmpty()) {
-            throw new InvalidPaymentStatusTransitionException("Payment not found");
+            throw new PaymentNotFoundException("No payment exists with the supplied payment ID");
         }
 
         Payment payment = existingPayment.get();
@@ -97,7 +97,7 @@ public class PaymentServiceImpl implements PaymentService{
 
         return paymentRepository.findById(paymentId)
                 .orElseThrow(() ->
-                        new PaymentNotFoundException("Payment not found")
+                        new PaymentNotFoundException("No payment exists with the supplied payment ID")
                 );
     }
 }

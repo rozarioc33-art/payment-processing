@@ -1,6 +1,7 @@
 package rozarioc33_art.payment_processing.exception;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -16,7 +17,7 @@ public class GlobalExceptionHandler {
 
     // Handles validation errors triggered by @Valid on request DTOs
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<Map<String, Object>> handleValidationExceptions(
+    public ResponseEntity<ProblemDetail> handleValidationExceptions(
             MethodArgumentNotValidException ex) {
 
         Map<String, String> fieldErrors = new HashMap<>();
@@ -25,81 +26,72 @@ public class GlobalExceptionHandler {
             fieldErrors.put(error.getField(), error.getDefaultMessage());
         }
 
-        Map<String, Object> response = new HashMap<>();
-        response.put("timestamp", LocalDateTime.now());
-        response.put("status", HttpStatus.BAD_REQUEST.value());
-        response.put("error", "Validation Failed");
-        response.put("errors", fieldErrors);
+        ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
+        problemDetail.setTitle("Validation Failed");
+        problemDetail.setDetail("One or more fields are invalid.");
+        problemDetail.setProperty("errors", fieldErrors);
 
-        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(problemDetail);
     }
 
     @ExceptionHandler(OrderNotFoundException.class)
-    public ResponseEntity<Map<String, Object>> handleOrderNotFound(
+    public ResponseEntity<ProblemDetail> handleOrderNotFound(
             OrderNotFoundException ex) {
 
-        Map<String, Object> response = new HashMap<>();
+        ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.NOT_FOUND);
+        problemDetail.setTitle("Order Not Found");
+        problemDetail.setDetail(ex.getMessage());
 
-        response.put("timestamp", LocalDateTime.now());
-        response.put("status", HttpStatus.NOT_FOUND.value());
-        response.put("error", "Not Found");
-        response.put("message", ex.getMessage());
-
-        return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(problemDetail);
     }
 
     @ExceptionHandler(PaymentNotFoundException.class)
-    public ResponseEntity<Map<String, Object>> handlePaymentNotFound(
+    public ResponseEntity<ProblemDetail> handlePaymentNotFound(
             PaymentNotFoundException ex) {
 
-        Map<String, Object> response = new HashMap<>();
+        ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.NOT_FOUND);
+        problemDetail.setTitle("Payment Not Found");
+        problemDetail.setDetail(ex.getMessage());
 
-        response.put("timestamp", LocalDateTime.now());
-        response.put("status", HttpStatus.NOT_FOUND.value());
-        response.put("error", "Not Found");
-        response.put("message", ex.getMessage());
-
-        return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(problemDetail);
     }
 
     @ExceptionHandler(InvalidOrderIdException.class)
-    public ResponseEntity<Map<String, Object>> handleInvalidOrderId(
+    public ResponseEntity<ProblemDetail> handleInvalidOrderId(
             InvalidOrderIdException ex) {
 
-        Map<String, Object> response = new HashMap<>();
+        ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
+        problemDetail.setTitle("Invalid Order ID");
+        problemDetail.setDetail(ex.getMessage());
 
-        response.put("timestamp", LocalDateTime.now());
-        response.put("status", HttpStatus.BAD_REQUEST.value());
-        response.put("error", "Bad Request");
-        response.put("message", ex.getMessage());
-
-        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(problemDetail);
     }
 
     @ExceptionHandler(InvalidPaymentStatusTransitionException.class)
-    public ResponseEntity<Map<String, Object>> handleInvalidPaymentStatusTransition(
+    public ResponseEntity<ProblemDetail> handleInvalidPaymentStatusTransition(
             InvalidPaymentStatusTransitionException ex) {
 
-        Map<String, Object> response = new HashMap<>();
+        ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
+        problemDetail.setTitle("Invalid Payment Status Transition");
+        problemDetail.setDetail(ex.getMessage());
 
-        response.put("timestamp", LocalDateTime.now());
-        response.put("status", HttpStatus.BAD_REQUEST.value());
-        response.put("error", "Invalid Payment Status Transition");
-        response.put("message", ex.getMessage());
-
-        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(problemDetail);
     }
 
     // Catch-all handler for any other unexpected exceptions
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<Map<String, Object>> handleGenericException(Exception ex) {
+    public ResponseEntity<ProblemDetail> handleGenericException(Exception ex) {
 
-        Map<String, Object> response = new HashMap<>();
-        response.put("timestamp", LocalDateTime.now());
-        response.put("status", HttpStatus.INTERNAL_SERVER_ERROR.value());
-        response.put("error", "Internal Server Error");
-        response.put("message", "An unexpected error occurred. Please try again later.");
+        ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.INTERNAL_SERVER_ERROR);
+        problemDetail.setTitle("Internal Server Error");
+        problemDetail.setDetail("An unexpected error occurred. Please try again later.");
 
-        return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(problemDetail);
     }
 }
