@@ -4,7 +4,7 @@ import jakarta.persistence.*;
 import org.hibernate.annotations.UuidGenerator;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.UUID;
 
 @Entity
@@ -15,26 +15,31 @@ public class Order {
     @UuidGenerator
     private UUID id;
 
+    @Column(nullable = false, precision = 19, scale = 4)
     private BigDecimal amount;
 
+    @Column(nullable = false, length = 3)
     private String currency;
 
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private OrderStatus status;
 
-    private LocalDateTime createdAt;
+    @Column(nullable = false, updatable = false)
+    private Instant createdAt;
 
-    private LocalDateTime updatedAt;
+    @Column(nullable = false)
+    private Instant updatedAt;
 
     @PrePersist
     protected void onCreate() {
-        createdAt = LocalDateTime.now();
-        updatedAt = LocalDateTime.now();
+        createdAt = Instant.now();
+        updatedAt = Instant.now();
     }
 
     @PreUpdate
     protected void onUpdate() {
-        updatedAt = LocalDateTime.now();
+        updatedAt = Instant.now();
     }
 
     public UUID getId() {
@@ -69,19 +74,19 @@ public class Order {
         this.status = status;
     }
 
-    public LocalDateTime getCreatedAt() {
+    public Instant getCreatedAt() {
         return createdAt;
     }
 
-    public void setCreatedAt(LocalDateTime createdAt) {
+    public void setCreatedAt(Instant createdAt) {
         this.createdAt = createdAt;
     }
 
-    public LocalDateTime getUpdatedAt() {
+    public Instant getUpdatedAt() {
         return updatedAt;
     }
 
-    public void setUpdatedAt(LocalDateTime updatedAt) {
+    public void setUpdatedAt(Instant updatedAt) {
         this.updatedAt = updatedAt;
     }
 }

@@ -4,7 +4,7 @@ import jakarta.persistence.*;
 import org.hibernate.annotations.UuidGenerator;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.UUID;
 
 @Entity
@@ -18,17 +18,35 @@ public class Payment {
     @JoinColumn(name = "order_id", nullable = false)
     private Order order;
 
+    @Column(nullable = false, precision = 19, scale = 3)
     private BigDecimal amount;
+
+    @Column(nullable = false, length = 3)
     private String currency;
 
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private PaymentStatus status;
 
     @Column(unique = true, nullable = false)
     private String idempotencyKey;
 
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
+    @Column(nullable = false, updatable = false)
+    private Instant createdAt;
+
+    @Column(nullable = false)
+    private Instant updatedAt;
+
+    @PrePersist
+    protected void onCreate() {
+        createdAt = Instant.now();
+        updatedAt = Instant.now();
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        updatedAt = Instant.now();
+    }
 
     public UUID getId() {
         return id;
@@ -78,31 +96,19 @@ public class Payment {
         this.idempotencyKey = idempotencyKey;
     }
 
-    public LocalDateTime getCreatedAt() {
+    public Instant getCreatedAt() {
         return createdAt;
     }
 
-    public void setCreatedAt(LocalDateTime createdAt) {
+    public void setCreatedAt(Instant createdAt) {
         this.createdAt = createdAt;
     }
 
-    public LocalDateTime getUpdatedAt() {
+    public Instant getUpdatedAt() {
         return updatedAt;
     }
 
-    public void setUpdatedAt(LocalDateTime updatedAt) {
+    public void setUpdatedAt(Instant updatedAt) {
         this.updatedAt = updatedAt;
     }
-
-    @PrePersist
-    protected  void onCreate() {
-        createdAt = LocalDateTime.now();
-        updatedAt = LocalDateTime.now();
-    }
-
-    @PreUpdate
-    protected void onUpdate() {
-        updatedAt = LocalDateTime.now();
-    }
-
 }
