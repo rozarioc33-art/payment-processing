@@ -61,6 +61,7 @@ public class PaymentServiceImpl implements PaymentService{
         payment.setCurrency(request.getCurrency());
         payment.setStatus(PaymentStatus.INITIATED);
         payment.setIdempotencyKey(idempotencyKey);
+        payment.setPaymentMethodType(request.getPaymentMethodType());
 
         return paymentRepository.save(payment);
     }

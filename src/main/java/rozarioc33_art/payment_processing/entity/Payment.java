@@ -37,6 +37,10 @@ public class Payment {
     @Column(nullable = false)
     private Instant updatedAt;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private PaymentMethodType paymentMethodType;
+
     @PrePersist
     protected void onCreate() {
         createdAt = Instant.now();
@@ -110,5 +114,13 @@ public class Payment {
 
     public void setUpdatedAt(Instant updatedAt) {
         this.updatedAt = updatedAt;
+    }
+
+    public PaymentMethodType getPaymentMethodType() {
+        return paymentMethodType;
+    }
+
+    public void setPaymentMethodType(PaymentMethodType paymentMethodType) {
+        this.paymentMethodType = paymentMethodType;
     }
 }
