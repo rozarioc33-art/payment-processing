@@ -1,14 +1,13 @@
 package rozarioc33_art.payment_processing.service;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import rozarioc33_art.payment_processing.dto.PaymentRequest;
 import rozarioc33_art.payment_processing.entity.Order;
+import rozarioc33_art.payment_processing.entity.OrderStatus;
 import rozarioc33_art.payment_processing.entity.Payment;
 import rozarioc33_art.payment_processing.entity.PaymentStatus;
-import rozarioc33_art.payment_processing.exception.InvalidOrderIdException;
-import rozarioc33_art.payment_processing.exception.InvalidPaymentStatusTransitionException;
-import rozarioc33_art.payment_processing.exception.OrderNotFoundException;
-import rozarioc33_art.payment_processing.exception.PaymentNotFoundException;
+import rozarioc33_art.payment_processing.exception.*;
 import rozarioc33_art.payment_processing.repository.OrderRepository;
 import rozarioc33_art.payment_processing.repository.PaymentRepository;
 
@@ -48,6 +47,13 @@ public class PaymentServiceImpl implements PaymentService{
                         new OrderNotFoundException("No order exists with the supplied order ID")
                 );
 
+        if (order.getStatus() == OrderStatus.PAID || order.getStatus() == OrderStatus.CANCELLED) {
+
+            throw new InvalidOrderStatusException(
+                    "Order cannot accept a new payment"
+            );
+        }
+
         Payment payment = new Payment();
 
         payment.setOrder(order);
@@ -59,6 +65,7 @@ public class PaymentServiceImpl implements PaymentService{
         return paymentRepository.save(payment);
     }
 
+    @Transactional
     @Override
     public Payment changePaymentStatus(UUID paymentId, PaymentStatus newStatus) {
 
@@ -87,6 +94,12 @@ public class PaymentServiceImpl implements PaymentService{
             }
         } else {
             throw new InvalidPaymentStatusTransitionException("Invalid payment status transition");
+        }
+
+        if (newStatus == PaymentStatus.SUCCESS) {
+            Order order = payment.getOrder();
+            order.setStatus(OrderStatus.PAID);
+            orderRepository.save(order);
         }
 
         return paymentRepository.save(payment);

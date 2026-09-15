@@ -35,6 +35,17 @@ public class GlobalExceptionHandler {
                 .body(problemDetail);
     }
 
+    @ExceptionHandler(InvalidOrderStatusException.class)
+        public ResponseEntity<ProblemDetail> handleInvalidOrderStatus(InvalidOrderStatusException ex) {
+
+            ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.CONFLICT);
+            problemDetail.setTitle("Invalid Order Status");
+            problemDetail.setDetail(ex.getMessage());
+
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+                    .body(problemDetail);
+        }
+
     @ExceptionHandler(OrderNotFoundException.class)
     public ResponseEntity<ProblemDetail> handleOrderNotFound(
             OrderNotFoundException ex) {
